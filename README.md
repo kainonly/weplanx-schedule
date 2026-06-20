@@ -1,13 +1,13 @@
-# Scheduler
+# Weplanx Schedule
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/kainonly/scheduler/release.yml?label=release&style=flat-square)](https://github.com/kainonly/scheduler/actions/workflows/release.yml)
-[![Release](https://img.shields.io/github/v/release/kainonly/scheduler.svg?style=flat-square&include_prereleases)](https://github.com/kainonly/scheduler/releases)
-[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainonly/scheduler?style=flat-square)](https://github.com/kainonly/scheduler)
-[![Go Report Card](https://goreportcard.com/badge/github.com/kainonly/scheduler?style=flat-square)](https://goreportcard.com/report/github.com/kainonly/scheduler)
-[![GitHub license](https://img.shields.io/github/license/kainonly/scheduler?style=flat-square)](https://raw.githubusercontent.com/kainonly/scheduler/main/LICENSE)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/weplanx/schedule/release.yml?label=release&style=flat-square)](https://github.com/weplanx/schedule/actions/workflows/release.yml)
+[![Release](https://img.shields.io/github/v/release/weplanx/schedule.svg?style=flat-square&include_prereleases)](https://github.com/weplanx/schedule/releases)
+[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/weplanx/schedule?style=flat-square)](https://github.com/weplanx/schedule)
+[![Go Report Card](https://goreportcard.com/badge/github.com/weplanx/schedule?style=flat-square)](https://goreportcard.com/report/github.com/weplanx/schedule)
+[![GitHub license](https://img.shields.io/github/license/weplanx/schedule?style=flat-square)](https://raw.githubusercontent.com/weplanx/schedule/main/LICENSE)
 
-Scheduler node
+Schedule message event publishing node
 
 ## License
 
-[BSD-3-Clause License](https://github.com/kainonly/scheduler/blob/main/LICENSE)
+[BSD-3-Clause License](https://github.com/weplanx/schedule/blob/main/LICENSE)
