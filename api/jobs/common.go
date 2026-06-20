@@ -3,9 +3,10 @@ package jobs
 import (
 	"time"
 
+	"github.com/bytedance/sonic"
+	"github.com/imroc/req/v3"
 	"github.com/kainonly/cronx/api/configs"
 	"github.com/kainonly/cronx/common"
-	"resty.dev/v3"
 
 	"github.com/google/wire"
 )
@@ -30,11 +31,13 @@ type Service struct {
 type M = map[string]any
 
 func (x *Service) Run(cfg common.Job) (err error) {
-	client := resty.New().
-		SetTimeout(5 * time.Second)
+	client := req.C().
+		SetTimeout(5 * time.Second).
+		SetJsonMarshal(sonic.Marshal).
+		SetJsonUnmarshal(sonic.Unmarshal)
 
 	if cfg.Username != "" && cfg.Password != "" {
-		client.SetBasicAuth(cfg.Username, cfg.Password)
+		client = client.SetCommonBasicAuth(cfg.Username, cfg.Password)
 	}
 
 	r := client.R()
@@ -45,60 +48,54 @@ func (x *Service) Run(cfg common.Job) (err error) {
 		r = r.SetQueryParams(cfg.Query)
 	}
 
-	var resp *resty.Response
+	var resp *req.Response
 	switch cfg.Method {
 	case "HEAD":
 		if resp, err = r.Head(cfg.URL); err != nil {
 			return
 		}
+		break
 	case "DELETE":
 		if resp, err = r.Delete(cfg.URL); err != nil {
 			return
 		}
+		break
 	case "POST":
 		if cfg.Body != "" {
-			r = r.SetHeader("Content-Type", "application/json").SetBody(cfg.Body)
+			r = r.SetBodyJsonString(cfg.Body)
 		}
 		if resp, err = r.Post(cfg.URL); err != nil {
 			return
 		}
+		break
 	case "PATCH":
 		if cfg.Body != "" {
-			r = r.SetHeader("Content-Type", "application/json").SetBody(cfg.Body)
+			r = r.SetBodyJsonString(cfg.Body)
 		}
 		if resp, err = r.Patch(cfg.URL); err != nil {
 			return
 		}
+		break
 	case "PUT":
 		if cfg.Body != "" {
-			r = r.SetHeader("Content-Type", "application/json").SetBody(cfg.Body)
+			r = r.SetBodyJsonString(cfg.Body)
 		}
-		if resp, err = r.Put(cfg.URL); err != nil {
+		if resp, err = r.Post(cfg.URL); err != nil {
 			return
 		}
+		break
 	default:
 		if resp, err = r.Get(cfg.URL); err != nil {
 			return
 		}
+		break
 	}
 
-	println(resp.Status())
-	println(resp.StatusCode())
+	println(resp.Status)
+	println(resp.StatusCode)
 	println(resp.String())
 
-	return
-}
-
-func (x *Service) Push(cfg common.Job) (err error) {
-	//resp, err := client.R().
-	//	AddQueryParam(`_stream_fields`, `schedule_id,job_id`).
-	//	AddQueryParam(`_time_field`, `date`).
-	//	AddQueryParam(`_msg_field`, `log.message`).
-	//	SetBodyString(`
-	//		{ "log": { "level": "info", "message": "hello world" }, "date": "0", "schedule_id": "schedule1", "job_id": "a" }
-	//		{ "log": { "level": "error", "message": "oh no!" }, "date": "0", "schedule_id": "schedule1", "job_id": "b" }
-	//		{ "log": { "level": "info", "message": "hello world" }, "date": "0", "schedule_id": "schedule2", "job_id": "a" }`).
-	//	Post(`/insert/jsonline`)
+	// TODO: 这里接入 Victoria
 
 	return
 }
