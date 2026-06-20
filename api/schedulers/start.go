@@ -30,7 +30,7 @@ func (x *Controller) Start(ctx context.Context, c *app.RequestContext) {
 
 func (x *Service) Start(ctx context.Context, dto StartDto) error {
 	return x.Db.View(func(txn *badger.Txn) (err error) {
-		if _, err = x.ConfigsX.Get(txn, dto.Key); err != nil {
+		if _, err = x.StorageX.Get(txn, dto.Key); err != nil {
 			return
 		}
 

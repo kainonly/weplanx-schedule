@@ -34,6 +34,6 @@ func (x *Service) Remove(ctx context.Context, dto RemoveDto) error {
 		if err = x.Cron.Remove(dto.Key); err != nil && !errors.Is(err, common.ErrNotExists) {
 			return
 		}
-		return x.ConfigsX.Remove(txn, dto.Key)
+		return x.StorageX.Remove(txn, dto.Key)
 	})
 }

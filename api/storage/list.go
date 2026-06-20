@@ -1,4 +1,4 @@
-package schedulers
+package storage
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 )
 
 func (x *Controller) List(ctx context.Context, c *app.RequestContext) {
-	results, err := x.SchedulersX.List(ctx)
+	results, err := x.StorageX.List(ctx)
 	if err != nil {
 		c.Error(err)
 		return

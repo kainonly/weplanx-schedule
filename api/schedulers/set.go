@@ -63,6 +63,6 @@ func (x *Service) Set(ctx context.Context, dto SetDto) error {
 			scheduler.Start()
 		}
 
-		return x.ConfigsX.Set(txn, dto.Key, *dto.Scheduler)
+		return x.StorageX.Set(txn, dto.Key, *dto.Scheduler)
 	})
 }

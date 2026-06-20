@@ -34,7 +34,7 @@ func (x *Controller) Remove(ctx context.Context, c *app.RequestContext) {
 func (x *Service) Delete(ctx context.Context, dto RemoveDto) error {
 	return x.Db.Update(func(txn *badger.Txn) (err error) {
 		var data common.Scheduler
-		if data, err = x.ConfigsX.Get(txn, dto.SchedulerKey); err != nil {
+		if data, err = x.StorageX.Get(txn, dto.SchedulerKey); err != nil {
 			return
 		}
 
@@ -53,6 +53,6 @@ func (x *Service) Delete(ctx context.Context, dto RemoveDto) error {
 		}
 
 		delete(data.Jobs, dto.Id)
-		return x.ConfigsX.Set(txn, dto.SchedulerKey, data)
+		return x.StorageX.Set(txn, dto.SchedulerKey, data)
 	})
 }

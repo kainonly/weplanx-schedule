@@ -1,4 +1,4 @@
-package configs
+package storage
 
 import "github.com/dgraph-io/badger/v4"
 

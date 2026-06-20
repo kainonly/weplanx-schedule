@@ -1,4 +1,4 @@
-package configs
+package storage
 
 import (
 	"github.com/bytedance/sonic"
