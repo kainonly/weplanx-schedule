@@ -95,7 +95,5 @@ func (x *Service) Run(cfg common.Job) (err error) {
 	println(resp.StatusCode)
 	println(resp.String())
 
-	// TODO: 这里接入 Victoria
-
 	return
 }
