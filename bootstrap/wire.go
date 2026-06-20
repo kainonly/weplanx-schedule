@@ -4,22 +4,20 @@
 package bootstrap
 
 import (
-	"github.com/kainonly/cronx/api"
-	"github.com/kainonly/cronx/common"
-
 	"github.com/google/wire"
+	"github.com/weplanx/schedule/app"
+	"github.com/weplanx/schedule/common"
 )
 
-func NewAPI(values *common.Values) (*api.API, error) {
+func NewApp() (*app.App, error) {
 	wire.Build(
-		wire.Struct(new(api.API), "*"),
 		wire.Struct(new(common.Inject), "*"),
-		UseGorm,
-		UseVictorialogs,
-		UsePassport,
-		UseCronx,
-		UseHertz,
-		api.Provides,
+		LoadStaticValues,
+		UseZap,
+		UseNats,
+		UseJetStream,
+		UseKeyValue,
+		app.Initialize,
 	)
-	return &api.API{}, nil
+	return &app.App{}, nil
 }

@@ -1,78 +1,58 @@
 package common
 
 import (
-	"github.com/bytedance/sonic"
-	"github.com/kainonly/go/help"
-	"gorm.io/gorm"
-	"resty.dev/v3"
+	"github.com/nats-io/nats.go"
+	"go.uber.org/zap"
+	"time"
 )
 
 type Inject struct {
-	V    *Values
-	Db   *gorm.DB
-	Logs *Victorialogs
-	Cron *Cronx
+	V        *Values
+	Log      *zap.Logger
+	Nats     *nats.Conn
+	KeyValue nats.KeyValue
 }
 
-var (
-	ErrNotExists       = help.E(0, `The key does not exist in the process`)
-	ErrConfigNotExists = help.E(0, `The key does not exist in the config.`)
-)
-
-type Scheduler struct {
-	Key      string          `json:"key" vd:"required,uuid4"`
-	Status   *bool           `json:"status" vd:"required"`
-	Name     string          `json:"name" vd:"required"`
-	Timezone string          `json:"timezone" vd:"required,timezone"`
-	Jobs     map[string]*Job `json:"jobs" vd:"required,dive,keys,uuid4,endkeys,required"`
+type Values struct {
+	Node string `env:"NODE,required"`
+	Nats struct {
+		Hosts []string `env:"HOSTS,required" envSeparator:","`
+		Nkey  string   `env:"NKEY,required"`
+	} `envPrefix:"NATS_"`
 }
 
 type Job struct {
-	SchedulerKey string            `json:"scheduler_key" vd:"required,uuid4"`
-	Id           string            `json:"id" vd:"required,uuid4"`
-	Crontab      string            `json:"crontab" vd:"required,cron"`
-	Method       string            `json:"method" vd:"oneof=GET HEAD DELETE POST PATCH PUT"`
-	URL          string            `json:"url" vd:"url"`
-	Headers      map[string]string `json:"headers"`
-	Query        map[string]string `json:"query"`
-	Body         string            `json:"body"`
-	Username     string            `json:"username"`
-	Password     string            `json:"password"`
+	Key    string      `msgpack:"key"`
+	Index  int         `msgpack:"index"`
+	Mode   string      `msgpack:"mode"`
+	Option interface{} `msgpack:"option"`
 }
 
-type Victorialogs struct {
-	Client *resty.Client
+type HttpOption struct {
+	Method  string                 `json:"method" msgpack:"method"`
+	Url     string                 `json:"url" msgpack:"url"`
+	Headers map[string]string      `json:"headers" msgpack:"headers"`
+	Body    map[string]interface{} `json:"body" msgpack:"body"`
 }
 
-type PushDto struct {
-	Ts           string  `json:"ts"` // ISO8601 or RFC3339
-	SchedulerKey string  `json:"scheduler_key"`
-	JobId        string  `json:"job_id"`
-	Log          PushLog `json:"log"`
+type ScheduleOption struct {
+	Status bool          `json:"status" msgpack:"status" `
+	Jobs   []ScheduleJob `json:"jobs" msgpack:"jobs" `
 }
 
-type PushLog struct {
-	Duration string `json:"duration"`
-	Status   string `json:"status"`
-	Body     string `json:"body"`
+type ScheduleJob struct {
+	Mode          string      `json:"mode" msgpack:"mode"`
+	Spec          string      `json:"spec" msgpack:"spec"`
+	Option        interface{} `json:"option" msgpack:"option"`
+	ScheduleState `json:"schedule_state" msgpack:"state"`
 }
 
-func (x *Victorialogs) Push(dto PushDto) (err error) {
-	var body string
-	if body, err = sonic.MarshalString(dto); err != nil {
-		return
-	}
-	var resp *resty.Response
-	if resp, err = x.Client.R().
-		SetQueryParam(`_time_field`, `ts`).
-		SetQueryParam(`_stream_fields`, `scheduler_key,job_id`).
-		SetQueryParam(`_msg_field`, `log.body`).
-		SetBody(body).
-		Post(`/insert/jsonline`); err != nil {
-		return
-	}
-	if resp.IsError() {
-		return
-	}
-	return
+type ScheduleState struct {
+	Next time.Time `json:"next" msgpack:"next"`
+	Prev time.Time `json:"prev" msgpack:"prev"`
+}
+
+type ScheduleStatus struct {
+	Key   string `msgpack:"key"`
+	Value bool   `msgpack:"value"`
 }

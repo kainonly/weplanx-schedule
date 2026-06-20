@@ -1,92 +1,71 @@
 package bootstrap
 
 import (
-	"database/sql"
+	"fmt"
+	"github.com/caarlos0/env/v10"
+	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nkeys"
+	"github.com/weplanx/schedule/common"
+	"go.uber.org/zap"
 	"os"
-	"time"
-
-	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/cloudwego/hertz/pkg/app/server/binding"
-	"github.com/cloudwego/hertz/pkg/common/config"
-	"github.com/hertz-contrib/binding/go_playground"
-	"github.com/hertz-contrib/cors"
-	"github.com/kainonly/cronx/common"
-	"github.com/kainonly/go/help"
-	"github.com/kainonly/go/passport"
-	"gopkg.in/yaml.v3"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"resty.dev/v3"
+	"strings"
 )
 
-func LoadStaticValues(path string) (v *common.Values, err error) {
-	v = new(common.Values)
-	var b []byte
-	if b, err = os.ReadFile(path); err != nil {
-		return
-	}
-	if err = yaml.Unmarshal(b, &v); err != nil {
+func LoadStaticValues() (values *common.Values, err error) {
+	values = new(common.Values)
+	if err = env.Parse(values); err != nil {
 		return
 	}
 	return
 }
 
-func UseGorm(v *common.Values) (orm *gorm.DB, err error) {
-	if orm, err = gorm.Open(sqlite.Open(v.Database.Path), &gorm.Config{}); err != nil {
-		return
+func UseZap() (log *zap.Logger, err error) {
+	if os.Getenv("MODE") != "release" {
+		if log, err = zap.NewDevelopment(); err != nil {
+			return
+		}
+	} else {
+		if log, err = zap.NewProduction(); err != nil {
+			return
+		}
 	}
-	var db *sql.DB
-	if db, err = orm.DB(); err != nil {
-		return
-	}
-	db.SetMaxIdleConns(10)
-	db.SetMaxOpenConns(100)
-	db.SetConnMaxLifetime(time.Hour)
 	return
 }
 
-func UseVictorialogs(v *common.Values) *common.Victorialogs {
-	return &common.Victorialogs{
-		Client: resty.New().
-			SetBaseURL(v.Database.Victorialogs).
-			SetHeader("Content-Type", "application/stream+json"),
-	}
-}
-
-func UsePassport(v *common.Values) *passport.Passport {
-	return passport.New(
-		passport.SetKey(v.Key),
-		passport.SetIssuer(v.Node),
-	)
-}
-
-func UseCronx() *common.Cronx {
-	return new(common.Cronx)
-}
-
-func UseHertz(v *common.Values) (h *server.Hertz, err error) {
-	if v.Address == "" {
+func UseNats(values *common.Values) (nc *nats.Conn, err error) {
+	var kp nkeys.KeyPair
+	if kp, err = nkeys.FromSeed([]byte(values.Nats.Nkey)); err != nil {
 		return
 	}
-	vd := go_playground.NewValidator()
-	vd.SetValidateTag("vd")
-	opts := []config.Option{
-		server.WithHostPorts(v.Address),
-		server.WithCustomValidatorFunc(binding.MakeValidatorFunc(vd)),
+	defer kp.Wipe()
+	var pub string
+	if pub, err = kp.PublicKey(); err != nil {
+		return
 	}
-
-	opts = append(opts)
-	h = server.Default(opts...)
-	h.Use(
-		help.ErrorHandler(),
-		cors.New(cors.Config{
-			AllowOrigins: v.Origins,
-			AllowMethods: []string{"GET", "POST"},
-			AllowHeaders: []string{"Origin", "Content-Length", "Content-Type",
-				"Authorization", "X-Requested-With",
-			},
-			MaxAge: 12 * time.Hour,
+	if !nkeys.IsValidPublicUserKey(pub) {
+		return nil, fmt.Errorf("nkey verification failed")
+	}
+	if nc, err = nats.Connect(
+		strings.Join(values.Nats.Hosts, ","),
+		nats.RetryOnFailedConnect(true),
+		nats.MaxReconnects(-1),
+		nats.Nkey(pub, func(nonce []byte) ([]byte, error) {
+			sig, _ := kp.Sign(nonce)
+			return sig, nil
 		}),
-	)
+	); err != nil {
+		return
+	}
 	return
+}
+
+func UseJetStream(nc *nats.Conn) (nats.JetStreamContext, error) {
+	return nc.JetStream(nats.PublishAsyncMaxPending(256))
+}
+
+func UseKeyValue(values *common.Values, js nats.JetStreamContext) (nats.KeyValue, error) {
+	return js.CreateKeyValue(&nats.KeyValueConfig{
+		Bucket:      fmt.Sprintf(`schedules_%s`, values.Node),
+		Description: "Schedule message event publishing node",
+	})
 }
