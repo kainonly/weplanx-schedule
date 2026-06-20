@@ -17,14 +17,9 @@ import (
 // Injectors from wire.go:
 
 func NewAPI(values *common.Values) (*api.API, error) {
-	db, err := UseBadger()
-	if err != nil {
-		return nil, err
-	}
 	cronx := UseCronx()
 	inject := &common.Inject{
 		V:    values,
-		Db:   db,
 		Cron: cronx,
 	}
 	hertz, err := UseHertz(values)
