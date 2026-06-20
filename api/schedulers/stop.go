@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/dgraph-io/badger/v4"
+	"github.com/go-co-op/gocron/v2"
 	"github.com/kainonly/go/help"
 )
 
@@ -27,17 +29,17 @@ func (x *Controller) Stop(ctx context.Context, c *app.RequestContext) {
 }
 
 func (x *Service) Stop(ctx context.Context, dto StopDto) error {
-	//return x.Db.View(func(txn *badger.Txn) (err error) {
-	//	if _, err = x.ConfigsX.Get(txn, dto.Key); err != nil {
-	//		return
-	//	}
-	//
-	//	var s gocron.Scheduler
-	//	if s, err = x.Cron.Get(dto.Key); err != nil {
-	//		return
-	//	}
-	//
-	//	return s.StopJobs()
-	//})
-	return nil
+	return x.Db.View(func(txn *badger.Txn) (err error) {
+		if _, err = x.ConfigsX.Get(txn, dto.Key); err != nil {
+			return
+		}
+
+		var s gocron.Scheduler
+		if s, err = x.Cron.Get(dto.Key); err != nil {
+			return
+		}
+
+		return s.StopJobs()
+	})
+
 }

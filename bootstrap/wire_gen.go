@@ -8,6 +8,7 @@ package bootstrap
 
 import (
 	"github.com/kainonly/cronx/api"
+	"github.com/kainonly/cronx/api/configs"
 	"github.com/kainonly/cronx/api/index"
 	"github.com/kainonly/cronx/api/jobs"
 	"github.com/kainonly/cronx/api/schedulers"
@@ -17,7 +18,7 @@ import (
 // Injectors from wire.go:
 
 func NewAPI(values *common.Values) (*api.API, error) {
-	db, err := UseGorm(values)
+	db, err := UseBadger(values)
 	if err != nil {
 		return nil, err
 	}
@@ -41,20 +42,29 @@ func NewAPI(values *common.Values) (*api.API, error) {
 		V:      values,
 		IndexX: service,
 	}
-	jobsService := &jobs.Service{
+	configsService := &configs.Service{
 		Inject: inject,
+	}
+	jobsService := &jobs.Service{
+		Inject:   inject,
+		ConfigsX: configsService,
 	}
 	jobsController := &jobs.Controller{
 		V:     values,
 		JobsX: jobsService,
 	}
 	schedulersService := &schedulers.Service{
-		Inject: inject,
-		JobsX:  jobsService,
+		Inject:   inject,
+		ConfigsX: configsService,
+		JobsX:    jobsService,
 	}
 	schedulersController := &schedulers.Controller{
 		V:           values,
 		SchedulersX: schedulersService,
+	}
+	configsController := &configs.Controller{
+		V:        values,
+		ConfigsX: configsService,
 	}
 	apiAPI := &api.API{
 		Inject:     inject,
@@ -64,6 +74,7 @@ func NewAPI(values *common.Values) (*api.API, error) {
 		IndexX:     service,
 		Jobs:       jobsController,
 		Schedulers: schedulersController,
+		Configs:    configsController,
 	}
 	return apiAPI, nil
 }

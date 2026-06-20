@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/dgraph-io/badger/v4"
 	"github.com/go-co-op/gocron/v2"
 	"github.com/google/uuid"
 	"github.com/kainonly/cronx/common"
@@ -52,18 +53,17 @@ func (x *Service) SetRunner(key string, cfg common.Job) (err error) {
 }
 
 func (x *Service) Set(ctx context.Context, dto SetDto) error {
-	//return x.Db.Update(func(txn *badger.Txn) (err error) {
-	//	var data common.Scheduler
-	//	if data, err = x.ConfigsX.Get(txn, dto.SchedulerKey); err != nil {
-	//		return
-	//	}
-	//
-	//	if err = x.SetRunner(dto.SchedulerKey, *dto.Job); err != nil {
-	//		return
-	//	}
-	//
-	//	data.Jobs[dto.Id] = dto.Job
-	//	return x.ConfigsX.Set(txn, dto.SchedulerKey, data)
-	//})
-	return nil
+	return x.Db.Update(func(txn *badger.Txn) (err error) {
+		var data common.Scheduler
+		if data, err = x.ConfigsX.Get(txn, dto.SchedulerKey); err != nil {
+			return
+		}
+
+		if err = x.SetRunner(dto.SchedulerKey, *dto.Job); err != nil {
+			return
+		}
+
+		data.Jobs[dto.Id] = dto.Job
+		return x.ConfigsX.Set(txn, dto.SchedulerKey, data)
+	})
 }

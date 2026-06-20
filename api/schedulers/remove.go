@@ -2,8 +2,11 @@ package schedulers
 
 import (
 	"context"
+	"errors"
 
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/dgraph-io/badger/v4"
+	"github.com/kainonly/cronx/common"
 	"github.com/kainonly/go/help"
 )
 
@@ -27,11 +30,10 @@ func (x *Controller) Remove(ctx context.Context, c *app.RequestContext) {
 }
 
 func (x *Service) Remove(ctx context.Context, dto RemoveDto) error {
-	//return x.Db.Update(func(txn *badger.Txn) (err error) {
-	//	if err = x.Cron.Remove(dto.Key); err != nil && !errors.Is(err, common.ErrNotExists) {
-	//		return
-	//	}
-	//	return x.ConfigsX.Remove(txn, dto.Key)
-	//})
-	return nil
+	return x.Db.Update(func(txn *badger.Txn) (err error) {
+		if err = x.Cron.Remove(dto.Key); err != nil && !errors.Is(err, common.ErrNotExists) {
+			return
+		}
+		return x.ConfigsX.Remove(txn, dto.Key)
+	})
 }

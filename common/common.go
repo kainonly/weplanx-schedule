@@ -2,14 +2,14 @@ package common
 
 import (
 	"github.com/bytedance/sonic"
+	badger "github.com/dgraph-io/badger/v4"
 	"github.com/kainonly/go/help"
-	"gorm.io/gorm"
 	"resty.dev/v3"
 )
 
 type Inject struct {
 	V    *Values
-	Db   *gorm.DB
+	Db   *badger.DB
 	Logs *Victorialogs
 	Cron *Cronx
 }

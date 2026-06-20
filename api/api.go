@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 
+	"github.com/kainonly/cronx/api/configs"
 	"github.com/kainonly/cronx/api/index"
 	"github.com/kainonly/cronx/api/jobs"
 	"github.com/kainonly/cronx/api/schedulers"
@@ -17,6 +18,7 @@ var Provides = wire.NewSet(
 	index.Provides,
 	jobs.Provides,
 	schedulers.Provides,
+	configs.Provides,
 )
 
 type API struct {
@@ -28,6 +30,7 @@ type API struct {
 	IndexX     *index.Service
 	Jobs       *jobs.Controller
 	Schedulers *schedulers.Controller
+	Configs    *configs.Controller
 }
 
 func (x *API) Initialize(ctx context.Context) (h *server.Hertz, err error) {
@@ -47,6 +50,10 @@ func (x *API) Initialize(ctx context.Context) (h *server.Hertz, err error) {
 		_schedulers.POST(`start`, x.Schedulers.Start)
 		_schedulers.POST(`stop`, x.Schedulers.Stop)
 		_schedulers.POST(`remove`, x.Schedulers.Remove)
+	}
+	_configs := x.Hertz.Group("configs")
+	{
+		_configs.GET(``, x.Configs.List)
 	}
 	return x.Hertz, nil
 }
