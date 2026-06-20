@@ -1,9 +1,13 @@
 package schedulers
 
 import (
-	"github.com/google/wire"
-	"github.com/kainonly/cronx/api/storage"
+	"context"
+
 	"github.com/kainonly/cronx/common"
+	"github.com/kainonly/cronx/model"
+	"github.com/kainonly/go/help"
+
+	"github.com/google/wire"
 )
 
 var Provides = wire.NewSet(
@@ -19,8 +23,20 @@ type Controller struct {
 
 type Service struct {
 	*common.Inject
-
-	StorageX *storage.Service
 }
 
 type M = map[string]any
+
+func (x *Service) CheckSchedulerExists(ctx context.Context, id string) (err error) {
+	var exists int64
+	if err = x.Db.Model(model.Scheduler{}).WithContext(ctx).
+		Where("id = ?", id).
+		Count(&exists).Error; err != nil {
+		return
+	}
+
+	if exists == 0 {
+		return help.E(0, `The scheduler do not exist.`)
+	}
+	return
+}

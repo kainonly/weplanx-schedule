@@ -6,7 +6,6 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/imroc/req/v3"
 	"github.com/kainonly/cronx/api/schedulers"
-	"github.com/kainonly/cronx/api/storage"
 	"github.com/kainonly/cronx/common"
 
 	"github.com/google/wire"
@@ -27,7 +26,6 @@ type Service struct {
 	*common.Inject
 
 	SchedulersX *schedulers.Service
-	StorageX    *storage.Service
 }
 
 type M = map[string]any
@@ -38,59 +36,59 @@ func (x *Service) Run(dto CreateDto) (err error) {
 		SetJsonMarshal(sonic.Marshal).
 		SetJsonUnmarshal(sonic.Unmarshal)
 
-	if dto.Username != "" && dto.Password != "" {
+	if dto.Schema.Username != "" && dto.Schema.Password != "" {
 		client = client.SetCommonBasicAuth(
-			dto.Username,
-			dto.Password,
+			dto.Schema.Username,
+			dto.Schema.Password,
 		)
 	}
 
 	r := client.R()
-	if dto.Headers != nil {
-		r = r.SetHeaders(dto.Headers)
+	if dto.Schema.Headers != nil {
+		r = r.SetHeaders(dto.Schema.Headers)
 	}
-	if dto.Query != nil {
-		r = r.SetQueryParams(dto.Query)
+	if dto.Schema.Query != nil {
+		r = r.SetQueryParams(dto.Schema.Query)
 	}
 
 	var resp *req.Response
-	switch dto.Method {
+	switch dto.Schema.Method {
 	case "HEAD":
-		if resp, err = r.Head(dto.URL); err != nil {
+		if resp, err = r.Head(dto.Schema.URL); err != nil {
 			return
 		}
 		break
 	case "DELETE":
-		if resp, err = r.Delete(dto.URL); err != nil {
+		if resp, err = r.Delete(dto.Schema.URL); err != nil {
 			return
 		}
 		break
 	case "POST":
-		if dto.Body != "" {
-			r = r.SetBodyJsonString(dto.Body)
+		if dto.Schema.Body != "" {
+			r = r.SetBodyJsonString(dto.Schema.Body)
 		}
-		if resp, err = r.Post(dto.URL); err != nil {
+		if resp, err = r.Post(dto.Schema.URL); err != nil {
 			return
 		}
 		break
 	case "PATCH":
-		if dto.Body != "" {
-			r = r.SetBodyJsonString(dto.Body)
+		if dto.Schema.Body != "" {
+			r = r.SetBodyJsonString(dto.Schema.Body)
 		}
-		if resp, err = r.Patch(dto.URL); err != nil {
+		if resp, err = r.Patch(dto.Schema.URL); err != nil {
 			return
 		}
 		break
 	case "PUT":
-		if dto.Body != "" {
-			r = r.SetBodyJsonString(dto.Body)
+		if dto.Schema.Body != "" {
+			r = r.SetBodyJsonString(dto.Schema.Body)
 		}
-		if resp, err = r.Post(dto.URL); err != nil {
+		if resp, err = r.Post(dto.Schema.URL); err != nil {
 			return
 		}
 		break
 	default:
-		if resp, err = r.Get(dto.URL); err != nil {
+		if resp, err = r.Get(dto.Schema.URL); err != nil {
 			return
 		}
 		break

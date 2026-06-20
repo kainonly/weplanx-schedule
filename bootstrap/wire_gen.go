@@ -11,14 +11,13 @@ import (
 	"github.com/kainonly/cronx/api/index"
 	"github.com/kainonly/cronx/api/jobs"
 	"github.com/kainonly/cronx/api/schedulers"
-	"github.com/kainonly/cronx/api/storage"
 	"github.com/kainonly/cronx/common"
 )
 
 // Injectors from wire.go:
 
 func NewAPI(values *common.Values) (*api.API, error) {
-	db, err := UseBadger(values)
+	db, err := UseGorm(values)
 	if err != nil {
 		return nil, err
 	}
@@ -39,17 +38,12 @@ func NewAPI(values *common.Values) (*api.API, error) {
 		V:      values,
 		IndexX: service,
 	}
-	storageService := &storage.Service{
-		Inject: inject,
-	}
 	schedulersService := &schedulers.Service{
-		Inject:   inject,
-		StorageX: storageService,
+		Inject: inject,
 	}
 	jobsService := &jobs.Service{
 		Inject:      inject,
 		SchedulersX: schedulersService,
-		StorageX:    storageService,
 	}
 	jobsController := &jobs.Controller{
 		V:     values,
@@ -59,10 +53,6 @@ func NewAPI(values *common.Values) (*api.API, error) {
 		V:           values,
 		SchedulersX: schedulersService,
 	}
-	storageController := &storage.Controller{
-		V:        values,
-		StorageX: storageService,
-	}
 	apiAPI := &api.API{
 		Inject:     inject,
 		Hertz:      hertz,
@@ -70,7 +60,6 @@ func NewAPI(values *common.Values) (*api.API, error) {
 		IndexX:     service,
 		Jobs:       jobsController,
 		Schedulers: schedulersController,
-		Storage:    storageController,
 	}
 	return apiAPI, nil
 }

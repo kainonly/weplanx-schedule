@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/dgraph-io/badger/v4"
-	"github.com/go-co-op/gocron/v2"
 	"github.com/kainonly/go/help"
 )
 
 type StopDto struct {
-	Key string `json:"key" vd:"uuid4"`
+	ID string `json:"id" vd:"required,uuid4"`
 }
 
 func (x *Controller) Stop(ctx context.Context, c *app.RequestContext) {
@@ -28,18 +26,13 @@ func (x *Controller) Stop(ctx context.Context, c *app.RequestContext) {
 	c.JSON(200, help.Ok())
 }
 
-func (x *Service) Stop(ctx context.Context, dto StopDto) error {
-	return x.Db.View(func(txn *badger.Txn) (err error) {
-		if _, err = x.StorageX.GetValue(txn, dto.Key); err != nil {
-			return
-		}
-
-		var s gocron.Scheduler
-		if s, err = x.Cron.Get(dto.Key); err != nil {
-			return
-		}
-
-		return s.StopJobs()
-	})
-
+func (x *Service) Stop(ctx context.Context, dto StopDto) (err error) {
+	if err = x.CheckSchedulerExists(ctx, dto.ID); err != nil {
+		return
+	}
+	if !x.Cron.Has(dto.ID) {
+		return
+	}
+	s := x.Cron.Get(dto.ID)
+	return s.StopJobs()
 }

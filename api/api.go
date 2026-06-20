@@ -6,7 +6,6 @@ import (
 	"github.com/kainonly/cronx/api/index"
 	"github.com/kainonly/cronx/api/jobs"
 	"github.com/kainonly/cronx/api/schedulers"
-	"github.com/kainonly/cronx/api/storage"
 	"github.com/kainonly/cronx/common"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -17,7 +16,6 @@ var Provides = wire.NewSet(
 	index.Provides,
 	jobs.Provides,
 	schedulers.Provides,
-	storage.Provides,
 )
 
 type API struct {
@@ -28,7 +26,6 @@ type API struct {
 	IndexX     *index.Service
 	Jobs       *jobs.Controller
 	Schedulers *schedulers.Controller
-	Storage    *storage.Controller
 }
 
 func (x *API) Initialize(ctx context.Context) (h *server.Hertz, err error) {
@@ -45,11 +42,6 @@ func (x *API) Initialize(ctx context.Context) (h *server.Hertz, err error) {
 		_schedulers.POST(`start`, x.Schedulers.Start)
 		_schedulers.POST(`stop`, x.Schedulers.Stop)
 		_schedulers.POST(`delete`, x.Schedulers.Delete)
-	}
-	_storage := x.Hertz.Group("storage")
-	{
-		_storage.GET(``, x.Storage.Find)
-		_storage.GET(`:key`, x.Storage.Get)
 	}
 	return x.Hertz, nil
 }

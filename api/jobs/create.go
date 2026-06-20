@@ -4,16 +4,17 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/dgraph-io/badger/v4"
 	"github.com/go-co-op/gocron/v2"
 	"github.com/google/uuid"
-	"github.com/kainonly/cronx/common"
+	"github.com/kainonly/cronx/model"
 	"github.com/kainonly/go/help"
+	"gorm.io/gorm"
 )
 
 type CreateDto struct {
-	SchedulerKey string `json:"schedule_key" vd:"required,uuid4"`
-	*common.Job
+	SchedulerID string           `json:"schedule_id" vd:"required,uuid4"`
+	Crontab     string           `json:"crontab" vd:"required"`
+	Schema      *model.JobSchema `json:"schema" vd:"required,dive"`
 }
 
 func (x *Controller) Create(ctx context.Context, c *app.RequestContext) {
@@ -31,31 +32,36 @@ func (x *Controller) Create(ctx context.Context, c *app.RequestContext) {
 	c.JSON(200, help.Ok())
 }
 
-func (x *Service) Create(ctx context.Context, dto CreateDto) error {
-	return x.Db.Update(func(txn *badger.Txn) (err error) {
-		if _, err = x.StorageX.GetValue(txn, dto.SchedulerKey); err != nil {
+func (x *Service) Create(ctx context.Context, dto CreateDto) (err error) {
+	if err = x.SchedulersX.CheckSchedulerExists(ctx, dto.SchedulerID); err != nil {
+		return
+	}
+	if !x.Cron.Has(dto.SchedulerID) {
+		return
+	}
+
+	return x.Db.Transaction(func(tx *gorm.DB) (errX error) {
+		jobID := uuid.New()
+		data := model.Job{
+			ID:          jobID.String(),
+			SchedulerID: dto.SchedulerID,
+			Crontab:     dto.Crontab,
+			Schema:      dto.Schema,
+		}
+
+		if errX = tx.WithContext(ctx).
+			Create(&data).Error; errX != nil {
 			return
 		}
 
-		var identifier uuid.UUID
-		if identifier, err = uuid.FromBytes([]byte(dto.Identifier)); err != nil {
-			return
-		}
-
-		var scheduler gocron.Scheduler
-		if scheduler, err = x.Cron.Get(dto.SchedulerKey); err != nil {
-			return
-		}
-
-		if _, err = scheduler.NewJob(
+		if _, err = x.Cron.Get(dto.SchedulerID).NewJob(
 			gocron.CronJob(dto.Crontab, true),
 			gocron.NewTask(x.Run, dto),
-			gocron.WithIdentifier(identifier),
+			gocron.WithIdentifier(jobID),
 		); err != nil {
 			return
 		}
 
-		// TODO: 合并配置再更新本地存储...
 		return
 	})
 }

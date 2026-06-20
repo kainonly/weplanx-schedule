@@ -4,15 +4,13 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/dgraph-io/badger/v4"
-	"github.com/go-co-op/gocron/v2"
 	"github.com/google/uuid"
 	"github.com/kainonly/go/help"
 )
 
 type DeleteDto struct {
-	SchedulerKey string `json:"schedule_key" vd:"uuid4"`
-	Identifier   string `json:"identifier" vd:"uuid4"`
+	SchedulerID string `json:"schedule_id" vd:"required,uuid4"`
+	ID          string `json:"uuid" vd:"required,uuid4"`
 }
 
 func (x *Controller) Delete(ctx context.Context, c *app.RequestContext) {
@@ -30,27 +28,11 @@ func (x *Controller) Delete(ctx context.Context, c *app.RequestContext) {
 	c.JSON(200, help.Ok())
 }
 
-func (x *Service) Delete(ctx context.Context, dto DeleteDto) error {
-	return x.Db.Update(func(txn *badger.Txn) (err error) {
-		if _, err = x.StorageX.GetValue(txn, dto.SchedulerKey); err != nil {
-			return
-		}
-
-		var identifier uuid.UUID
-		if identifier, err = uuid.FromBytes([]byte(dto.Identifier)); err != nil {
-			return
-		}
-
-		var scheduler gocron.Scheduler
-		if scheduler, err = x.Cron.Get(dto.SchedulerKey); err != nil {
-			return
-		}
-
-		if err = scheduler.RemoveJob(identifier); err != nil {
-			return
-		}
-
-		// TODO: 合并配置再更新本地存储...
+func (x *Service) Delete(ctx context.Context, dto DeleteDto) (err error) {
+	if !x.Cron.Has(dto.SchedulerID) {
 		return
-	})
+	}
+
+	jobID, _ := uuid.FromBytes([]byte(dto.ID))
+	return x.Cron.Get(dto.SchedulerID).RemoveJob(jobID)
 }
