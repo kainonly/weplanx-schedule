@@ -22,12 +22,10 @@ func NewAPI(values *common.Values) (*api.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	victorialogs := UseVictorialogs(values)
 	cronx := UseCronx()
 	inject := &common.Inject{
 		V:    values,
 		Db:   db,
-		Logs: victorialogs,
 		Cron: cronx,
 	}
 	hertz, err := UseHertz(values)

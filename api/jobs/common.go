@@ -82,18 +82,23 @@ func (x *Service) Run(cfg common.Job) (err error) {
 		}
 	}
 
-	if err = x.Logs.Push(common.PushDto{
-		Ts:           time.Now().Format(time.RFC3339),
-		SchedulerKey: cfg.SchedulerKey,
-		JobId:        cfg.Id,
-		Log: common.PushLog{
-			Duration: resp.Duration().String(),
-			Status:   resp.Status(),
-			Body:     resp.String(),
-		},
-	}); err != nil {
-		return
-	}
+	println(resp.Status())
+	println(resp.StatusCode())
+	println(resp.String())
+
+	return
+}
+
+func (x *Service) Push(cfg common.Job) (err error) {
+	//resp, err := client.R().
+	//	AddQueryParam(`_stream_fields`, `schedule_id,job_id`).
+	//	AddQueryParam(`_time_field`, `date`).
+	//	AddQueryParam(`_msg_field`, `log.message`).
+	//	SetBodyString(`
+	//		{ "log": { "level": "info", "message": "hello world" }, "date": "0", "schedule_id": "schedule1", "job_id": "a" }
+	//		{ "log": { "level": "error", "message": "oh no!" }, "date": "0", "schedule_id": "schedule1", "job_id": "b" }
+	//		{ "log": { "level": "info", "message": "hello world" }, "date": "0", "schedule_id": "schedule2", "job_id": "a" }`).
+	//	Post(`/insert/jsonline`)
 
 	return
 }

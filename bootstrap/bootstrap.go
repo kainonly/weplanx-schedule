@@ -13,7 +13,6 @@ import (
 	"github.com/kainonly/go/help"
 	"github.com/kainonly/go/passport"
 	"gopkg.in/yaml.v3"
-	"resty.dev/v3"
 
 	badger "github.com/dgraph-io/badger/v4"
 )
@@ -35,14 +34,6 @@ func UseBadger(v *common.Values) (db *badger.DB, err error) {
 		panic(err)
 	}
 	return
-}
-
-func UseVictorialogs(v *common.Values) *common.Victorialogs {
-	return &common.Victorialogs{
-		Client: resty.New().
-			SetBaseURL(v.Database.Victorialogs).
-			SetHeader("Content-Type", "application/stream+json"),
-	}
 }
 
 func UsePassport(v *common.Values) *passport.Passport {
