@@ -9,7 +9,6 @@ import (
 	"github.com/hertz-contrib/binding/go_playground"
 	"github.com/kainonly/cronx/common"
 	"github.com/kainonly/go/help"
-	"github.com/kainonly/go/passport"
 	"gopkg.in/yaml.v3"
 
 	badger "github.com/dgraph-io/badger/v4"
@@ -32,13 +31,6 @@ func UseBadger(v *common.Values) (db *badger.DB, err error) {
 		panic(err)
 	}
 	return
-}
-
-func UsePassport(v *common.Values) *passport.Passport {
-	return passport.New(
-		passport.SetKey(v.Key),
-		passport.SetIssuer(v.Domain),
-	)
 }
 
 func UseCronx() *common.Cronx {

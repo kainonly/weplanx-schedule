@@ -1,6 +1,2 @@
-address: :9000
-key: jMfJ3r826d6F2vHct2sy3GbXQNPsAyWZ
-domain: localhost:9000
+address: :7700
 database:
-  path: ./db/
-  victorialogs: http://localhost:9428

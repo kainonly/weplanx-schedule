@@ -32,7 +32,6 @@ func NewAPI(values *common.Values) (*api.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	passport := UsePassport(values)
 	service := &index.Service{
 		Inject: inject,
 	}
@@ -67,7 +66,6 @@ func NewAPI(values *common.Values) (*api.API, error) {
 	apiAPI := &api.API{
 		Inject:     inject,
 		Hertz:      hertz,
-		Passport:   passport,
 		Index:      controller,
 		IndexX:     service,
 		Jobs:       jobsController,
