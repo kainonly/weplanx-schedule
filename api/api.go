@@ -36,19 +36,20 @@ func (x *API) Initialize(ctx context.Context) (h *server.Hertz, err error) {
 
 	_jobs := x.Hertz.Group("jobs")
 	{
-		_jobs.POST(`set`, x.Jobs.Set)
-		_jobs.POST(`remove`, x.Jobs.Remove)
+		_jobs.POST(`create`, x.Jobs.Create)
+		_jobs.POST(`delete`, x.Jobs.Delete)
 	}
 	_schedulers := x.Hertz.Group("schedulers")
 	{
-		_schedulers.POST(`set`, x.Schedulers.Set)
+		_schedulers.POST(`create`, x.Schedulers.Create)
 		_schedulers.POST(`start`, x.Schedulers.Start)
 		_schedulers.POST(`stop`, x.Schedulers.Stop)
-		_schedulers.POST(`remove`, x.Schedulers.Remove)
+		_schedulers.POST(`delete`, x.Schedulers.Delete)
 	}
 	_storage := x.Hertz.Group("storage")
 	{
-		_storage.GET(``, x.Storage.List)
+		_storage.GET(``, x.Storage.Find)
+		_storage.GET(`:key`, x.Storage.Get)
 	}
 	return x.Hertz, nil
 }

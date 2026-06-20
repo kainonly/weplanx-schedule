@@ -2,7 +2,6 @@ package common
 
 import (
 	badger "github.com/dgraph-io/badger/v4"
-	"github.com/kainonly/go/help"
 )
 
 type Inject struct {
@@ -10,11 +9,6 @@ type Inject struct {
 	Db   *badger.DB
 	Cron *Cronx
 }
-
-var (
-	ErrConfigNotExists  = help.E(0, `The key does not exist in the schedule config`)
-	ErrStorageNotExists = help.E(0, `The key does not exist in the storage.`)
-)
 
 type Scheduler struct {
 	Key      string          `json:"key" vd:"uuid4"`

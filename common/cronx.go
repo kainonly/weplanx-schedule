@@ -1,9 +1,11 @@
 package common
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/go-co-op/gocron/v2"
+	"github.com/kainonly/go/help"
 )
 
 type Cronx struct {
@@ -18,15 +20,15 @@ func (x *Cronx) Get(key string) (gocron.Scheduler, error) {
 	if v, ok := x.m.Load(key); ok {
 		return v.(gocron.Scheduler), nil
 	}
-	return nil, ErrConfigNotExists
+	return nil, help.E(0, fmt.Sprintf(`The key[%s] does not exist in the schedule config`, key))
 }
 
 func (x *Cronx) Remove(key string) (err error) {
-	var scheduler gocron.Scheduler
-	if scheduler, err = x.Get(key); err != nil {
+	var s gocron.Scheduler
+	if s, err = x.Get(key); err != nil {
 		return
 	}
-	if err = scheduler.Shutdown(); err != nil {
+	if err = s.Shutdown(); err != nil {
 		return
 	}
 	x.m.Delete(key)

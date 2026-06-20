@@ -6,7 +6,7 @@ import (
 	"github.com/kainonly/cronx/common"
 )
 
-func (x *Service) Set(txn *badger.Txn, key string, data common.Scheduler) (err error) {
+func (x *Service) SetValue(txn *badger.Txn, key string, data common.Scheduler) (err error) {
 	var b []byte
 	if b, err = sonic.Marshal(data); err != nil {
 		return

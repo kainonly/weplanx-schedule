@@ -2,26 +2,24 @@ package schedulers
 
 import (
 	"context"
-	"errors"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/dgraph-io/badger/v4"
-	"github.com/kainonly/cronx/common"
 	"github.com/kainonly/go/help"
 )
 
-type RemoveDto struct {
+type DeleteDto struct {
 	Key string `path:"key" vd:"uuid4"`
 }
 
-func (x *Controller) Remove(ctx context.Context, c *app.RequestContext) {
-	var dto RemoveDto
+func (x *Controller) Delete(ctx context.Context, c *app.RequestContext) {
+	var dto DeleteDto
 	if err := c.BindAndValidate(&dto); err != nil {
 		c.Error(err)
 		return
 	}
 
-	if err := x.SchedulersX.Remove(ctx, dto); err != nil {
+	if err := x.SchedulersX.Delete(ctx, dto); err != nil {
 		c.Error(err)
 		return
 	}
@@ -29,11 +27,20 @@ func (x *Controller) Remove(ctx context.Context, c *app.RequestContext) {
 	c.JSON(200, help.Ok())
 }
 
-func (x *Service) Remove(ctx context.Context, dto RemoveDto) error {
+func (x *Service) Delete(ctx context.Context, dto DeleteDto) error {
 	return x.Db.Update(func(txn *badger.Txn) (err error) {
-		if err = x.Cron.Remove(dto.Key); err != nil && !errors.Is(err, common.ErrConfigNotExists) {
+		if _, err = x.StorageX.GetValue(txn, dto.Key); err != nil {
 			return
 		}
+
+		if _, err = x.Cron.Get(dto.Key); err != nil {
+			return
+		}
+
+		if err = x.Cron.Remove(dto.Key); err != nil {
+			return
+		}
+
 		return x.StorageX.Remove(txn, dto.Key)
 	})
 }
