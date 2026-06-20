@@ -3,10 +3,8 @@ package bootstrap
 import (
 	"os"
 
-	"github.com/cloudwego/hertz/pkg/app/server/binding"
+	"github.com/dgraph-io/badger/v4"
 	"github.com/kainonly/cronx/common"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/config"
@@ -27,8 +25,8 @@ func LoadStaticValues(path string) (v *common.Values, err error) {
 	return
 }
 
-func UseGorm(v *common.Values) (db *gorm.DB, err error) {
-	return gorm.Open(sqlite.Open(v.Database.Path), &gorm.Config{})
+func UseBadger() (*badger.DB, error) {
+	return badger.Open(badger.DefaultOptions("/tmp/badger"))
 }
 
 func UseCronx() *common.Cronx {
@@ -43,7 +41,7 @@ func UseHertz(v *common.Values) (h *server.Hertz, err error) {
 	vd.SetValidateTag("vd")
 	opts := []config.Option{
 		server.WithHostPorts(v.Address),
-		server.WithCustomValidatorFunc(binding.MakeValidatorFunc(vd)),
+		server.WithCustomValidator(vd),
 	}
 
 	opts = append(opts)

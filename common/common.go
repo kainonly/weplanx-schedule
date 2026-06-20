@@ -3,13 +3,13 @@ package common
 import (
 	"sync"
 
+	"github.com/dgraph-io/badger/v4"
 	"github.com/go-co-op/gocron/v2"
-	"gorm.io/gorm"
 )
 
 type Inject struct {
 	V    *Values
-	Db   *gorm.DB
+	Db   *badger.DB
 	Cron *Cronx
 }
 

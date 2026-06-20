@@ -1,8 +1,8 @@
 package common
 
 type Values struct {
-	Address  string   `yaml:"address"`
-	Database Database `yaml:"database"`
+	Address  string `yaml:"address"`
+	Database string `yaml:"database"`
 }
 
 type Database struct {

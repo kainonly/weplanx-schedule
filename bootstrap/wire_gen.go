@@ -17,7 +17,7 @@ import (
 // Injectors from wire.go:
 
 func NewAPI(values *common.Values) (*api.API, error) {
-	db, err := UseGorm(values)
+	db, err := UseBadger()
 	if err != nil {
 		return nil, err
 	}
