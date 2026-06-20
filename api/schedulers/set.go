@@ -34,7 +34,7 @@ func (x *Controller) Set(ctx context.Context, c *app.RequestContext) {
 func (x *Service) Set(ctx context.Context, dto SetDto) error {
 	return x.Db.Update(func(txn *badger.Txn) (err error) {
 		var scheduler gocron.Scheduler
-		if scheduler, err = x.Cron.Get(dto.Key); err != nil && !errors.Is(err, common.ErrNotExists) {
+		if scheduler, err = x.Cron.Get(dto.Key); err != nil && !errors.Is(err, common.ErrConfigNotExists) {
 			return
 		}
 		if err = scheduler.Shutdown(); err != nil {

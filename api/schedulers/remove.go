@@ -31,7 +31,7 @@ func (x *Controller) Remove(ctx context.Context, c *app.RequestContext) {
 
 func (x *Service) Remove(ctx context.Context, dto RemoveDto) error {
 	return x.Db.Update(func(txn *badger.Txn) (err error) {
-		if err = x.Cron.Remove(dto.Key); err != nil && !errors.Is(err, common.ErrNotExists) {
+		if err = x.Cron.Remove(dto.Key); err != nil && !errors.Is(err, common.ErrConfigNotExists) {
 			return
 		}
 		return x.StorageX.Remove(txn, dto.Key)

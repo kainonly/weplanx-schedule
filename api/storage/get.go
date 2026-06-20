@@ -7,16 +7,16 @@ import (
 )
 
 func (x *Service) Get(txn *badger.Txn, key string) (data common.Scheduler, err error) {
-	var item *badger.Item
-	if item, err = txn.Get([]byte(key)); err != nil {
+	var it *badger.Item
+	if it, err = txn.Get([]byte(key)); err != nil {
 		return
 	}
 	var b []byte
-	if b, err = item.ValueCopy(nil); err != nil {
+	if b, err = it.ValueCopy(nil); err != nil {
 		return
 	}
 	if len(b) == 0 {
-		err = common.ErrConfigNotExists
+		err = common.ErrStorageNotExists
 		return
 	}
 	if err = sonic.Unmarshal(b, &data); err != nil {

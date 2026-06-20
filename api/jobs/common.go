@@ -30,7 +30,7 @@ type Service struct {
 
 type M = map[string]any
 
-func (x *Service) Run(dto SetDto) (err error) {
+func (x *Service) Run(dto CreateDto) (err error) {
 	client := req.C().
 		SetTimeout(5 * time.Second).
 		SetJsonMarshal(sonic.Marshal).

@@ -30,7 +30,7 @@ func (x *Controller) Stop(ctx context.Context, c *app.RequestContext) {
 
 func (x *Service) Stop(ctx context.Context, dto StopDto) error {
 	return x.Db.View(func(txn *badger.Txn) (err error) {
-		if _, err = x.StorageX.Get(txn, dto.Key); err != nil {
+		if _, err = x.StorageX.GetValue(txn, dto.Key); err != nil {
 			return
 		}
 

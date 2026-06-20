@@ -18,7 +18,7 @@ func (x *Cronx) Get(key string) (gocron.Scheduler, error) {
 	if v, ok := x.m.Load(key); ok {
 		return v.(gocron.Scheduler), nil
 	}
-	return nil, ErrNotExists
+	return nil, ErrConfigNotExists
 }
 
 func (x *Cronx) Remove(key string) (err error) {
