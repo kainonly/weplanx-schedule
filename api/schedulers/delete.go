@@ -34,10 +34,11 @@ func (x *Service) Delete(ctx context.Context, dto DeleteDto) (err error) {
 	}
 
 	return x.Db.Transaction(func(tx *gorm.DB) (errX error) {
-		if errX = tx.Delete(&model.Scheduler{ID: dto.ID}).
-			WithContext(ctx).Error; errX != nil {
+		if errX = tx.Model(model.Scheduler{}).WithContext(ctx).
+			Delete(dto.ID).Error; errX != nil {
 			return
 		}
+
 		if !x.Cron.Has(dto.ID) {
 			return
 		}

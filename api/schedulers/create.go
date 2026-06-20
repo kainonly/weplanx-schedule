@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/go-co-op/gocron/v2"
 	"github.com/google/uuid"
 	"github.com/kainonly/cronx/model"
@@ -14,9 +13,8 @@ import (
 )
 
 type CreateDto struct {
-	ID       uuid.UUID `json:"-"`
-	Name     string    `json:"name" vd:"required"`
-	Timezone string    `json:"timezone" vd:"required"`
+	Name     string `json:"name" vd:"required"`
+	Timezone string `json:"timezone" vd:"required"`
 }
 
 func (x *Controller) Create(ctx context.Context, c *app.RequestContext) {
@@ -26,15 +24,12 @@ func (x *Controller) Create(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	dto.ID = uuid.New()
 	if err := x.SchedulersX.Create(ctx, dto); err != nil {
 		c.Error(err)
 		return
 	}
 
-	c.JSON(200, utils.H{
-		"uuid": dto.ID,
-	})
+	c.JSON(200, help.Ok())
 }
 
 func (x *Service) Create(ctx context.Context, dto CreateDto) (err error) {
@@ -50,8 +45,9 @@ func (x *Service) Create(ctx context.Context, dto CreateDto) (err error) {
 	}
 
 	return x.Db.Transaction(func(tx *gorm.DB) (errX error) {
+		schedulerID := uuid.New()
 		data := model.Scheduler{
-			ID:       dto.ID.String(),
+			ID:       schedulerID.String(),
 			Name:     dto.Name,
 			Timezone: dto.Timezone,
 		}
@@ -70,7 +66,7 @@ func (x *Service) Create(ctx context.Context, dto CreateDto) (err error) {
 		); err != nil {
 			return
 		}
-		x.Cron.Store(dto.ID.String(), s)
+		x.Cron.Store(schedulerID.String(), s)
 		return
 	})
 }
