@@ -1,9 +1,6 @@
 address: :9000
-node: dev
 key: jMfJ3r826d6F2vHct2sy3GbXQNPsAyWZ
 domain: localhost:9000
-origins:
-  - http://localhost:4200
 database:
   path: ./db/
   victorialogs: http://localhost:9428

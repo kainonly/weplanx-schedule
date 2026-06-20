@@ -2,13 +2,11 @@ package bootstrap
 
 import (
 	"os"
-	"time"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/app/server/binding"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/hertz-contrib/binding/go_playground"
-	"github.com/hertz-contrib/cors"
 	"github.com/kainonly/cronx/common"
 	"github.com/kainonly/go/help"
 	"github.com/kainonly/go/passport"
@@ -39,7 +37,7 @@ func UseBadger(v *common.Values) (db *badger.DB, err error) {
 func UsePassport(v *common.Values) *passport.Passport {
 	return passport.New(
 		passport.SetKey(v.Key),
-		passport.SetIssuer(v.Node),
+		passport.SetIssuer(v.Domain),
 	)
 }
 
@@ -62,14 +60,6 @@ func UseHertz(v *common.Values) (h *server.Hertz, err error) {
 	h = server.Default(opts...)
 	h.Use(
 		help.ErrorHandler(),
-		cors.New(cors.Config{
-			AllowOrigins: v.Origins,
-			AllowMethods: []string{"GET", "POST"},
-			AllowHeaders: []string{"Origin", "Content-Length", "Content-Type",
-				"Authorization", "X-Requested-With",
-			},
-			MaxAge: 12 * time.Hour,
-		}),
 	)
 	return
 }

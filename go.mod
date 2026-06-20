@@ -36,7 +36,6 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/google/flatbuffers v25.9.23+incompatible // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/hertz-contrib/cors v0.1.0 // indirect
 	github.com/hertz-contrib/requestid v1.1.0 // indirect
 	github.com/icholy/digest v1.1.0 // indirect
 	github.com/jonboulle/clockwork v0.5.0 // indirect

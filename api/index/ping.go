@@ -10,9 +10,8 @@ import (
 
 func (x *Controller) Ping(_ context.Context, c *app.RequestContext) {
 	data := M{
-		"node":     x.V.Node,
 		"hostname": os.Getenv("HOSTNAME"),
-		"ts":       time.Now(),
+		"now":      time.Now(),
 	}
 	c.JSON(200, data)
 }
