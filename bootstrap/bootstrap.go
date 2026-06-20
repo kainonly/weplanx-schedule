@@ -4,7 +4,6 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/go-co-op/gocron/v2"
 	"github.com/kainonly/scheduler/common"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -25,10 +24,6 @@ func LoadStaticValues(path string) (v *common.Values, err error) {
 		return
 	}
 	return
-}
-
-func UseScheduler() (gocron.Scheduler, error) {
-	return gocron.NewScheduler()
 }
 
 func UseHertz(v *common.Values) (h *server.Hertz, err error) {
