@@ -9,17 +9,19 @@ package bootstrap
 import (
 	"github.com/kainonly/cronx/api"
 	"github.com/kainonly/cronx/api/index"
-	"github.com/kainonly/cronx/api/schedulers"
 	"github.com/kainonly/cronx/common"
 )
 
 // Injectors from wire.go:
 
 func NewAPI(values *common.Values) (*api.API, error) {
-	cronx := UseCronx()
+	scheduler, err := UseScheduler()
+	if err != nil {
+		return nil, err
+	}
 	inject := &common.Inject{
-		V:    values,
-		Cron: cronx,
+		V:         values,
+		Scheduler: scheduler,
 	}
 	hertz, err := UseHertz(values)
 	if err != nil {
@@ -32,19 +34,11 @@ func NewAPI(values *common.Values) (*api.API, error) {
 		V:      values,
 		IndexX: service,
 	}
-	schedulersService := &schedulers.Service{
-		Inject: inject,
-	}
-	schedulersController := &schedulers.Controller{
-		V:           values,
-		SchedulersX: schedulersService,
-	}
 	apiAPI := &api.API{
-		Inject:     inject,
-		Hertz:      hertz,
-		Index:      controller,
-		IndexX:     service,
-		Schedulers: schedulersController,
+		Inject: inject,
+		Hertz:  hertz,
+		Index:  controller,
+		IndexX: service,
 	}
 	return apiAPI, nil
 }

@@ -14,7 +14,7 @@ func NewAPI(values *common.Values) (*api.API, error) {
 	wire.Build(
 		wire.Struct(new(api.API), "*"),
 		wire.Struct(new(common.Inject), "*"),
-		UseCronx,
+		UseScheduler,
 		UseHertz,
 		api.Provides,
 	)
