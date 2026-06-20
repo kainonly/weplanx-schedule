@@ -31,9 +31,9 @@ func (x *Controller) Set(ctx context.Context, c *app.RequestContext) {
 	c.JSON(200, help.Ok())
 }
 
-func (x *Service) SetRunner(key string, cfg common.Job) (err error) {
-	var id uuid.UUID
-	if id, err = uuid.Parse(cfg.Id); err != nil {
+func (x *Service) SetRunner(key string, job *common.Job) (err error) {
+	var identifier uuid.UUID
+	if identifier, err = uuid.FromBytes([]byte(job.Identifier)); err != nil {
 		return
 	}
 
@@ -43,9 +43,9 @@ func (x *Service) SetRunner(key string, cfg common.Job) (err error) {
 	}
 
 	if _, err = scheduler.NewJob(
-		gocron.CronJob(cfg.Crontab, true),
-		gocron.NewTask(x.Run, cfg),
-		gocron.WithIdentifier(id),
+		gocron.CronJob(job.Crontab, true),
+		gocron.NewTask(x.Run, job),
+		gocron.WithIdentifier(identifier),
 	); err != nil {
 		return
 	}
@@ -59,11 +59,11 @@ func (x *Service) Set(ctx context.Context, dto SetDto) error {
 			return
 		}
 
-		if err = x.SetRunner(dto.SchedulerKey, *dto.Job); err != nil {
+		if err = x.SetRunner(dto.SchedulerKey, dto.Job); err != nil {
 			return
 		}
 
-		data.Jobs[dto.Id] = dto.Job
+		data.Jobs[dto.Identifier] = dto.Job
 		return x.StorageX.Set(txn, dto.SchedulerKey, data)
 	})
 }

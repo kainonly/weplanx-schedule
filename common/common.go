@@ -20,18 +20,18 @@ type Scheduler struct {
 	Key      string          `json:"key" vd:"uuid4"`
 	Status   *bool           `json:"status" vd:"required"`
 	Name     string          `json:"name" vd:"required"`
-	Timezone string          `json:"timezone" vd:"timezone"`
-	Jobs     map[string]*Job `json:"jobs" vd:"required,dive,keys,uuid4,endkeys,required"`
+	Timezone string          `json:"timezone" vd:"required"`
+	Jobs     map[string]*Job `json:"jobs"`
 }
 
 type Job struct {
-	Id       string            `json:"id" vd:"uuid4"`
-	Crontab  string            `json:"crontab" vd:"cron"`
-	Method   string            `json:"method" vd:"oneof=GET HEAD DELETE POST PATCH PUT"`
-	URL      string            `json:"url" vd:"url"`
-	Headers  map[string]string `json:"headers"`
-	Query    map[string]string `json:"query"`
-	Body     string            `json:"body"`
-	Username string            `json:"username"`
-	Password string            `json:"password"`
+	Identifier string            `json:"identifier" vd:"uuid4"`
+	Crontab    string            `json:"crontab" vd:"required"`
+	Method     string            `json:"method" vd:"required"`
+	URL        string            `json:"url" vd:"required"`
+	Headers    map[string]string `json:"headers"`
+	Query      map[string]string `json:"query"`
+	Body       string            `json:"body"`
+	Username   string            `json:"username"`
+	Password   string            `json:"password"`
 }
