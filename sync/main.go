@@ -32,5 +32,5 @@ func sync(path string) (err error) {
 		return
 	}
 
-	return db.AutoMigrate(model.Scheduler{}, model.Job{})
+	return db.AutoMigrate(model.Scheduler{})
 }

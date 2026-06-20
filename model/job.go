@@ -7,8 +7,8 @@ import (
 )
 
 type Job struct {
-	ID          string     `gorm:"type:varchar;primaryKey"`
-	SchedulerID string     `gorm:"type:varchar;not null;index"`
+	ID          string     `gorm:"primaryKey"`
+	SchedulerID string     `gorm:"not null;index"`
 	Crontab     string     `gorm:"type:varchar;not null"`
 	Schema      *JobSchema `gorm:"type:text;not null"`
 }
