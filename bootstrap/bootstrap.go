@@ -5,7 +5,7 @@ import (
 	"regexp"
 
 	"github.com/go-co-op/gocron/v2"
-	"github.com/kainonly/cronx/common"
+	"github.com/kainonly/scheduler/common"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/config"

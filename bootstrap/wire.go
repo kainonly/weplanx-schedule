@@ -4,8 +4,8 @@
 package bootstrap
 
 import (
-	"github.com/kainonly/cronx/api"
-	"github.com/kainonly/cronx/common"
+	"github.com/kainonly/scheduler/api"
+	"github.com/kainonly/scheduler/common"
 
 	"github.com/google/wire"
 )

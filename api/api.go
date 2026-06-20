@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 
-	"github.com/kainonly/cronx/api/index"
-	"github.com/kainonly/cronx/common"
+	"github.com/kainonly/scheduler/api/index"
+	"github.com/kainonly/scheduler/common"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/google/wire"
