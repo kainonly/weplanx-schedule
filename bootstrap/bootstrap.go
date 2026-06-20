@@ -32,7 +32,7 @@ func LoadStaticValues(path string) (v *common.Values, err error) {
 }
 
 func UseGorm(v *common.Values) (orm *gorm.DB, err error) {
-	if orm, err = gorm.Open(sqlite.Open(v.Database.Path), &gorm.Config{}); err != nil {
+	if orm, err = gorm.Open(sqlite.Open(``), &gorm.Config{}); err != nil {
 		return
 	}
 	var db *sql.DB
