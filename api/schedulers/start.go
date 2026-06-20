@@ -8,7 +8,7 @@ import (
 )
 
 type StartDto struct {
-	ID string `json:"id" vd:"required,uuid4"`
+	Key string `json:"key" vd:"required"`
 }
 
 func (x *Controller) Start(ctx context.Context, c *app.RequestContext) {
@@ -27,13 +27,10 @@ func (x *Controller) Start(ctx context.Context, c *app.RequestContext) {
 }
 
 func (x *Service) Start(ctx context.Context, dto StartDto) (err error) {
-	if err = x.CheckSchedulerExists(ctx, dto.ID); err != nil {
+	if !x.Cron.Has(dto.Key) {
 		return
 	}
-	if !x.Cron.Has(dto.ID) {
-		return
-	}
-	s := x.Cron.Get(dto.ID)
+	s := x.Cron.Get(dto.Key)
 	s.Start()
 	return
 }

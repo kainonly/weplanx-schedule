@@ -8,7 +8,7 @@ import (
 )
 
 type StopDto struct {
-	ID string `json:"id" vd:"required,uuid4"`
+	Key string `json:"key" vd:"required"`
 }
 
 func (x *Controller) Stop(ctx context.Context, c *app.RequestContext) {
@@ -27,12 +27,9 @@ func (x *Controller) Stop(ctx context.Context, c *app.RequestContext) {
 }
 
 func (x *Service) Stop(ctx context.Context, dto StopDto) (err error) {
-	if err = x.CheckSchedulerExists(ctx, dto.ID); err != nil {
+	if !x.Cron.Has(dto.Key) {
 		return
 	}
-	if !x.Cron.Has(dto.ID) {
-		return
-	}
-	s := x.Cron.Get(dto.ID)
+	s := x.Cron.Get(dto.Key)
 	return s.StopJobs()
 }

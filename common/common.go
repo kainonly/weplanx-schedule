@@ -17,29 +17,29 @@ type Cronx struct {
 	m sync.Map
 }
 
-func (x *Cronx) Store(id string, value gocron.Scheduler) {
-	x.m.Store(id, value)
+func (x *Cronx) Store(key string, value gocron.Scheduler) {
+	x.m.Store(key, value)
 }
 
-func (x *Cronx) Has(id string) bool {
-	if _, ok := x.m.Load(id); ok {
+func (x *Cronx) Has(key string) bool {
+	if _, ok := x.m.Load(key); ok {
 		return ok
 	}
 	return false
 }
 
-func (x *Cronx) Get(id string) (value gocron.Scheduler) {
-	if v, ok := x.m.Load(id); ok {
+func (x *Cronx) Get(key string) (value gocron.Scheduler) {
+	if v, ok := x.m.Load(key); ok {
 		return v.(gocron.Scheduler)
 	}
 	return
 }
 
-func (x *Cronx) Remove(id string) (err error) {
-	s := x.Get(id)
+func (x *Cronx) Remove(key string) (err error) {
+	s := x.Get(key)
 	if err = s.Shutdown(); err != nil {
 		return
 	}
-	x.m.Delete(id)
+	x.m.Delete(key)
 	return
 }
