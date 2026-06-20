@@ -9,7 +9,6 @@ package bootstrap
 import (
 	"github.com/kainonly/cronx/api"
 	"github.com/kainonly/cronx/api/index"
-	"github.com/kainonly/cronx/api/jobs"
 	"github.com/kainonly/cronx/api/schedulers"
 	"github.com/kainonly/cronx/common"
 )
@@ -33,13 +32,6 @@ func NewAPI(values *common.Values) (*api.API, error) {
 		V:      values,
 		IndexX: service,
 	}
-	jobsService := &jobs.Service{
-		Inject: inject,
-	}
-	jobsController := &jobs.Controller{
-		V:     values,
-		JobsX: jobsService,
-	}
 	schedulersService := &schedulers.Service{
 		Inject: inject,
 	}
@@ -52,7 +44,6 @@ func NewAPI(values *common.Values) (*api.API, error) {
 		Hertz:      hertz,
 		Index:      controller,
 		IndexX:     service,
-		Jobs:       jobsController,
 		Schedulers: schedulersController,
 	}
 	return apiAPI, nil
